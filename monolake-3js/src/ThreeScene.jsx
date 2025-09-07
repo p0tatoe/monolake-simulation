@@ -46,8 +46,8 @@ export default function App() {
           <directionalLight position={[10, 10, 5]} intensity={1} />
 
           <Terrain
-            colorSrc="/geminimono.png"
-            heightSrc="/monomerge.png"
+            colorSrc="/assets/geminimono.png"
+            heightSrc="/assets/monomerge.png"
           />
 
           <Water level={waterLevel} />
