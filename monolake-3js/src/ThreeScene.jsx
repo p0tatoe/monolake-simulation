@@ -2,8 +2,8 @@ import React from "react";
 import * as THREE from "three";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
-import ColorMapPath from './assets/geminimono';
-import HeightMapPath from './assets/monomerge';
+import ColorMapPath from './assets/geminimono.png';
+import HeightMapPath from './assets/monomerge.png';
 
 
 function Terrain({ colorSrc, heightSrc }) {
