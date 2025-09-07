@@ -2,6 +2,9 @@ import React from "react";
 import * as THREE from "three";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import ColorMapPath from './assets/geminimono';
+import HeightMapPath from './assets/monomerge';
+
 
 function Terrain({ colorSrc, heightSrc }) {
   const colorMap = useLoader(THREE.TextureLoader, colorSrc);
@@ -46,8 +49,8 @@ export default function App() {
           <directionalLight position={[10, 10, 5]} intensity={1} />
 
           <Terrain
-            colorSrc="/assets/geminimono.png"
-            heightSrc="/assets/monomerge.png"
+            colorSrc={ColorMapPath}
+            heightSrc={HeightMapPath}
           />
 
           <Water level={waterLevel} />
