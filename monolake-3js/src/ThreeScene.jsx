@@ -4,6 +4,8 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import ColorMapPath from './assets/geminimono.png';
 import HeightMapPath from './assets/monomerge.png';
+import Sidebar from './Sidebar'
+import HoverableSphere from "./HoverableSphere";
 
 
 function Terrain({ colorSrc, heightSrc }) {
@@ -38,42 +40,34 @@ function Water({ level }) {
 }
 
 export default function App() {
-  const [waterLevel, setWaterLevel] = React.useState(0);
+  const [waterLevel, setWaterLevel] = React.useState(0.17);
+  const [uiOpen, setUiOpen] = React.useState(true);
 
   return (
-    <div style={{ width: "100vw", height: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* 3D Scene */}
-      <div style={{ flex: 1 }}>
-        <Canvas camera={{ position: [0, 6, 10], fov: 45 }}>
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
+    <div className="w-screen h-screen relative">
+      {/* === 3D Scene === */}
+      <Canvas camera={{ position: [0, 6, 10], fov: 45 }}>
+        <ambientLight intensity={0.6} />
+        <directionalLight position={[10, 10, 5]} intensity={1} />
 
-          <Terrain
-            colorSrc={ColorMapPath}
-            heightSrc={HeightMapPath}
-          />
+        <Terrain colorSrc={ColorMapPath} heightSrc={HeightMapPath} />
+        <Water level={waterLevel} />
 
-          <Water level={waterLevel} />
+        <HoverableSphere position={[0, 1, 0]}/>
 
-          <OrbitControls />
-        </Canvas>
-      </div>
 
-      {/* UI */}
-      <div style={{ padding: "10px", background: "#222", color: "#fff" }}>
-        <label>
-          Water Level: {waterLevel.toFixed(1)}
-          <input
-            type="range"
-            min={-2}
-            max={2}
-            step={0.1}
-            value={waterLevel}
-            onChange={(e) => setWaterLevel(parseFloat(e.target.value))}
-            style={{ width: "300px", marginLeft: "10px" }}
-          />
-        </label>
-      </div>
+        <OrbitControls />
+
+      </Canvas>
+
+      <Sidebar
+      isOpen={uiOpen}
+      onClose={() => setUiOpen(false)}
+      onOpen={() => setUiOpen(true)}
+      waterLevel={waterLevel}
+      onWaterLevelChange={setWaterLevel}
+      />
     </div>
+
   );
 }
