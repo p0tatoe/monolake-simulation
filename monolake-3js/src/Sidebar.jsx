@@ -5,8 +5,10 @@ const Sidebar = ({
   onClose, 
   onOpen,
   waterLevel, 
-  onWaterLevelChange 
+  onWaterLevelChange,
+  onShowCitations 
 }) => {
+  
   return (
     <>
       {/* Sidebar Overlay */}
@@ -38,6 +40,14 @@ const Sidebar = ({
               className="w-full accent-blue-500"
             />
           </label>
+          <br></br>
+          {/* Open Citations Modal */}
+          <button
+            onClick={onShowCitations}
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2 transition-colors duration-200"
+          >
+            View Attributions
+          </button>
         </div>
       </div>
       
