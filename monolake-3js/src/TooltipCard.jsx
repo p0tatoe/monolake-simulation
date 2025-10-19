@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function TooltipCard({ 
   data,
@@ -15,12 +15,34 @@ export default function TooltipCard({
 }) {
   if (!data) return null;
 
+  const cardRef = useRef(null);
+
+  // 2. Focus the element when the component mounts
+  useEffect(() => {
+    if (cardRef.current) {
+      // Set focus to the card container
+      cardRef.current.focus();
+    }
+    // esc handler
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+    
+  }, [onClose]);
+
   const {
     title,
     description,
     image,
-    imageAlt,
-    customContent
+    imageAlt
   } = data;
 
   return (
@@ -35,6 +57,11 @@ export default function TooltipCard({
       }}
     >
       <div
+        ref={cardRef}
+        tabIndex="-1"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'tooltip-title' : undefined}
         className={`${theme.background} ${theme.text} rounded-xl shadow-2xl relative`}
         style={{
           width: size.width,
@@ -47,6 +74,7 @@ export default function TooltipCard({
       >
         {/* Close Button */}
         <button
+          aria-label="Close information card"
           onClick={onClose}
           style={{
             position: 'absolute',
@@ -64,7 +92,10 @@ export default function TooltipCard({
 
         {/* Title */}
         {title && (
-          <div className={`text-lg font-semibold mb-3 text-center ${theme.titleText}`}>
+          <div 
+            id="tooltip-title"
+            className={`text-lg font-semibold mb-3 text-center ${theme.titleText}`}
+          >
             {title}
           </div>
         )}
@@ -87,12 +118,6 @@ export default function TooltipCard({
           </div>
         )}
 
-        {/* Custom content for more complex layouts */}
-        {customContent && (
-          <div className="mt-3">
-            {customContent}
-          </div>
-        )}
       </div>
 
       <style>{`

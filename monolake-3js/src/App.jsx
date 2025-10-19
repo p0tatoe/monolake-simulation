@@ -9,6 +9,7 @@ import HoverableModel from "./HoverableModel";
 import TooltipCard from "./TooltipCard";
 import InstructionsOverlay from './InstructionsOverlay';
 import CitationsModal from './CitationsModal';
+import { A11y, A11ySection, A11yAnnouncer } from '@react-three/a11y'
 
 const MODELS = {
   grebe: {
@@ -165,6 +166,11 @@ export default function App() {
     <div className="w-screen h-screen relative">
       {/* 3D Scene */}
       <Canvas camera={{ position: [0, 6, 10], fov: 45 }}>
+        <A11ySection
+          description="Interactive 3D Model of Mono Lake Ecosystem. 
+          Explore the Mono Lake environment and its key species. 
+          Use the sidebar to change the water level and see the effect on the environment."
+        >
         <Sky 
           distance={450000}
           inclination={0.7}
@@ -182,22 +188,29 @@ export default function App() {
 
         {/* Render all models dynamically */}
         {Object.entries(MODELS).map(([key, config]) => (
-          <HoverableModel
+          <A11y 
             key={key}
-            modelPath={config.modelPath}
-            position={config.position}
-            scale={config.scale}
-            onClick={() => handleModelClick(config.data)}
-          />
+            role='button'
+            description={`3D model of ${config.data.title}.`}
+            actionCall={() => handleModelClick(config.data)}
+          >
+            <HoverableModel
+              modelPath={config.modelPath}
+              position={config.position}
+              scale={config.scale}
+            />
+          </A11y>
         ))}
 
         {!instructionsDismissed && (
           <InstructionsOverlay onDismiss={() => setInstructionsDismissed(true)} />
         )}
+        </A11ySection>
 
         <OrbitControls />
 
       </Canvas>
+      <A11yAnnouncer />
 
       {/* Tooltip */}
       {selectedModel && (

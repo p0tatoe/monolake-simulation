@@ -10,9 +10,17 @@
     @apply text-blue-800 underline;
 }
 
+[r3f-a11y] {
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  pointer-events: none !important;
+}
+
 html,
 body,
 #root {
   height: 100%;
-  margin: unset;
+  margin: 0;
+  padding: 0;
 }

@@ -1,32 +1,33 @@
+// HoverableModel.jsx
 import React, { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { useA11y } from '@react-three/a11y';
 
-export default function HoverableModel({ 
+export default function HoverableModel({
   modelPath,
-  position = [0, 0, 0], 
-  scale = 1, 
-  onClick = () => {} }) 
-{
+  position = [0, 0, 0],
+  scale = 1,
+}) {
   const modelRef = useRef();
   const groupRef = useRef();
-  const [isHovered, setIsHovered] = useState(false);
   const [pulsePhase, setPulsePhase] = useState(0);
+  const a11y = useA11y();
 
-  // Load the GLB model
   const { scene } = useGLTF(modelPath);
 
-  // Pulse animation for glowing ring and floating model
+  // Derived "active" state: either pointer hover OR keyboard focus
+  const isActive = a11y.hover || a11y.focus;
+
+  // Animate floating + pulsing
   useFrame((_, delta) => {
     setPulsePhase(prev => prev + delta * 2);
 
-    // Floating effect
     if (modelRef.current) {
       modelRef.current.position.y = Math.sin(pulsePhase) * 0.1;
+      const baseScale = isActive ? scale * 1.5 : scale;
 
-      // Slight pulsing scale
-      const baseScale = isHovered ? scale * 1.1 : scale;
       const pulseScale = 1 + Math.sin(pulsePhase * 1.5) * 0.05;
       modelRef.current.scale.setScalar(baseScale * pulseScale);
     }
@@ -36,32 +37,17 @@ export default function HoverableModel({
     <group
       ref={groupRef}
       position={position}
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      onPointerEnter={() => {
-        setIsHovered(true);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerLeave={() => {
-        setIsHovered(false);
-        document.body.style.cursor = 'default';
-      }}
     >
-      {/* The 3d model */}
-      <primitive ref={modelRef} object={scene} scale={isHovered ? scale * 1.1 : scale} />
+      <primitive ref={modelRef} object={scene} scale={isActive ? scale * 1.5 : scale} />
 
-      {/* Glowing pulsing circle under the model */}
       <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]} scale={scale}>
         <ringGeometry args={[0.4, 0.5, 32]} />
         <meshBasicMaterial
-          color={isHovered ? "#60a5fa" : "#3b82f6"}
+          color={isActive ? "#60a5fa" : "#3b82f6"}
           transparent
-          opacity={isHovered ? 0.8 : 0.4 + Math.sin(pulsePhase * 3) * 0.2}
+          opacity={isActive ? 0.8 : 0.4 + Math.sin(pulsePhase * 3) * 0.2}
         />
       </mesh>
     </group>
   );
 }
-
