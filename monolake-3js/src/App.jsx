@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import * as THREE from "three";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls, Sky } from "@react-three/drei";
+import { OrbitControls, Sky, useGLTF } from "@react-three/drei";
 import ColorMapPath from './assets/geminimono.png';
 import HeightMapPath from './assets/monomerge.png';
 import Sidebar from './Sidebar'
@@ -9,6 +9,7 @@ import HoverableModel from "./HoverableModel";
 import TooltipCard from "./TooltipCard";
 import InstructionsOverlay from './InstructionsOverlay';
 import CitationsModal from './CitationsModal';
+import Player from './Player';
 import { A11y, A11ySection, A11yAnnouncer } from '@react-three/a11y'
 
 const MODELS = {
@@ -24,22 +25,6 @@ const MODELS = {
         and alkali flies before migrating south for the winter.`,
       image: import.meta.env.BASE_URL + "/grebe.jpg",
       imageAlt: "Eared Grebe swimming"
-    }
-  },
-  nest: {
-    modelPath: import.meta.env.BASE_URL + 'Birds nest.glb',
-    position: [-0.5, 1, -1.1],
-    scale: 0.4,
-    data: {
-      title: "California Gull Nest",
-      description: `
-      Mono Lake is home to one of the largest nesting grounds for California Gulls.
-      Around 50,000 California Gulls nest at Mono Lake each summer.
-      Many Gulls choose to nest near Negit Island, the small triangular island below.
-      Try lowering the water level to see what happens to these nests.
-      `,
-      image: import.meta.env.BASE_URL + "/gulls.jpg",
-      imageAlt: "A flock of seagulls nesting at Mono Lake"
     }
   },
   sandpiper: {
@@ -106,18 +91,40 @@ const MODELS = {
       imageAlt: "A close up of a brine shrimp"
     }
   },
+};
+
+const NEST_MODEL = {
+  nest: {
+    modelPath: import.meta.env.BASE_URL + 'Birds nest.glb',
+    position: [-0.5, 1, -1.1],
+    scale: 0.4,
+    data: {
+      title: "California Gull Nest",
+      description: `
+      Mono Lake is home to one of the largest nesting grounds for California Gulls.
+      Around 50,000 California Gulls nest at Mono Lake each summer.
+      Many Gulls choose to nest near Negit Island, the small triangular island below.
+      Try lowering the water level to see what happens to these nests.
+      `,
+      image: import.meta.env.BASE_URL + "/gulls.jpg",
+      imageAlt: "A flock of seagulls nesting at Mono Lake"
+    }
+  },
+};
+
+const COYOTE_MODEL = {
   coyote: {
     modelPath: import.meta.env.BASE_URL + 'Wolf.glb',
-    position: [-0.5, 2, -1.1],
+    position: [-0.5, 1, -1.1],
     scale: 0.5,
     data: {
       title: "Coyote",
-      description: `when a land bridge appears, coyotes feast on gull eggs`,
+      description: `When the water level is low, a land bridge is exposed, 
+      allowing coyotes to reach Negit Island and feast on gull eggs.`,
       image: import.meta.env.BASE_URL + "/coyote.jpg",
       imageAlt: "Coyote walking along the shore of Mono Lake"
     }
   },
-
 };
 
 function Terrain({ colorSrc, heightSrc }) {
@@ -129,9 +136,9 @@ function Terrain({ colorSrc, heightSrc }) {
       {/* load in the map */}
       <planeGeometry args={[10, 10, 256, 256]} />
       <meshStandardMaterial
-        map={colorMap}           
+        map={colorMap}
         displacementMap={heightMap}
-        displacementScale={0.5}         // exaggeration factor
+        displacementScale={0.5}
       />
     </mesh>
   );
@@ -140,15 +147,21 @@ function Terrain({ colorSrc, heightSrc }) {
 function Water({ level }) {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, level, 0]}>
-      <planeGeometry args={[10, 10]} />
+      <planeGeometry args={[9, 9]} />
       <meshStandardMaterial
         color="cadetblue"
         transparent
         opacity={0.8}
-        depthWrite={false} // prevents water from "blocking" terrain behind
+        depthWrite={false}
       />
     </mesh>
   );
+}
+
+function ModelPreloader() {
+  useGLTF(import.meta.env.BASE_URL + 'Birds nest.glb');
+  useGLTF(import.meta.env.BASE_URL + 'Wolf.glb');
+  return null;
 }
 
 export default function App() {
@@ -157,76 +170,119 @@ export default function App() {
   const [uiOpen, setUiOpen] = React.useState(true);
   const [showCitations, setShowCitations] = useState(false);
   const [instructionsDismissed, setInstructionsDismissed] = useState(false);
+  const [playerTarget, setPlayerTarget] = useState(null);
+  const [nearbyModelKey, setNearbyModelKey] = useState(null);
+
+  // Water level threshold for coyote appearance
+  const LOW_WATER_THRESHOLD = 0.14;
+
+  const isLandBridgeExposed = waterLevel < LOW_WATER_THRESHOLD;
+  const activeModel = isLandBridgeExposed ? COYOTE_MODEL : NEST_MODEL;
+  const activeKey = isLandBridgeExposed ? 'coyote' : 'nest';
 
   const handleModelClick = (modelData) => {
     setSelectedModel(modelData);
   };
 
+  const handleFocus = (position) => {
+    setPlayerTarget(position);
+  };
+
+  const handleProximityChange = (key) => {
+    setNearbyModelKey(key);
+  };
+
+  // Combine all active models for the player to check against
+  const allActiveModels = { ...MODELS, [activeKey]: activeModel[activeKey] };
+
   return (
     <div className="w-screen h-screen relative">
       {/* 3D Scene */}
       <Canvas camera={{ position: [0, 6, 10], fov: 45 }}>
+        <ModelPreloader />
         <A11ySection
           description="Interactive 3D Model of Mono Lake Ecosystem. 
           Explore the Mono Lake environment and its key species. 
           Use the sidebar to change the water level and see the effect on the environment."
         >
-        <Sky 
-          distance={450000}
-          inclination={0.7}
-          azimuth={0.25}
-          mieCoefficient={0.001}
-          mieDirectionalG={0.8}
-          rayleigh={10}
-          turbidity={2}
-        />
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
+          <Sky
+            distance={450000}
+            inclination={0.7}
+            azimuth={0.25}
+            mieCoefficient={0.001}
+            mieDirectionalG={0.8}
+            rayleigh={10}
+            turbidity={2}
+          />
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[10, 10, 5]} intensity={1} />
 
-        <Terrain colorSrc={ColorMapPath} heightSrc={HeightMapPath} />
-        <Water level={waterLevel} />
+          <Terrain colorSrc={ColorMapPath} heightSrc={HeightMapPath} />
+          <Water level={waterLevel} />
 
-        {/* Render all models dynamically */}
-        {Object.entries(MODELS).map(([key, config]) => (
-          <A11y 
-            key={key}
+          {/* Render all models dynamically */}
+          {Object.entries(MODELS).map(([key, config]) => (
+            <A11y
+              key={key}
+              role='button'
+              description={`3D model of ${config.data.title}.`}
+              actionCall={() => handleModelClick(config.data)}
+              focusCall={() => handleFocus(config.position)}
+            >
+              <HoverableModel
+                modelPath={config.modelPath}
+                position={config.position}
+                scale={config.scale}
+                isNearby={key === nearbyModelKey}
+              />
+            </A11y>
+          ))}
+
+          <A11y
+            key={activeKey}
             role='button'
-            description={`3D model of ${config.data.title}.`}
-            actionCall={() => handleModelClick(config.data)}
+            description={`3D model of ${activeModel[activeKey].data.title}.`}
+            actionCall={() => handleModelClick(activeModel[activeKey].data)}
+            focusCall={() => handleFocus(activeModel[activeKey].position)}
           >
             <HoverableModel
-              modelPath={config.modelPath}
-              position={config.position}
-              scale={config.scale}
+              modelPath={activeModel[activeKey].modelPath}
+              position={activeModel[activeKey].position}
+              scale={activeModel[activeKey].scale}
+              isNearby={activeKey === nearbyModelKey}
             />
           </A11y>
-        ))}
 
-        {!instructionsDismissed && (
-          <InstructionsOverlay onDismiss={() => setInstructionsDismissed(true)} />
-        )}
+          {!instructionsDismissed && (
+            <InstructionsOverlay onDismiss={() => setInstructionsDismissed(true)} />
+          )}
         </A11ySection>
 
-        <OrbitControls />
+        <Player
+          heightMapPath={HeightMapPath}
+          targetPosition={playerTarget}
+          models={allActiveModels}
+          onProximityChange={handleProximityChange}
+        />
 
       </Canvas>
       <A11yAnnouncer />
 
       {/* Tooltip */}
       {selectedModel && (
-        <TooltipCard 
-          data={selectedModel} 
-          onClose={() => setSelectedModel(null)} 
+        <TooltipCard
+          data={selectedModel}
+          onClose={() => setSelectedModel(null)}
         />
       )}
 
       <Sidebar
-      isOpen={uiOpen}
-      onClose={() => setUiOpen(false)}
-      onOpen={() => setUiOpen(true)}
-      waterLevel={waterLevel}
-      onWaterLevelChange={setWaterLevel}
-      onShowCitations={() => setShowCitations(true)}
+        isOpen={uiOpen}
+        onClose={() => setUiOpen(false)}
+        onOpen={() => setUiOpen(true)}
+        waterLevel={waterLevel}
+        onWaterLevelChange={setWaterLevel}
+        onShowCitations={() => setShowCitations(true)}
       />
 
       {showCitations && (

@@ -9,6 +9,7 @@ export default function HoverableModel({
   modelPath,
   position = [0, 0, 0],
   scale = 1,
+  isNearby = false,
 }) {
   const modelRef = useRef();
   const groupRef = useRef();
@@ -17,8 +18,8 @@ export default function HoverableModel({
 
   const { scene } = useGLTF(modelPath);
 
-  // Derived "active" state: either pointer hover OR keyboard focus
-  const isActive = a11y.hover || a11y.focus;
+  // Derived "active" state: either pointer hover, keyboard focus, or proximity
+  const isActive = a11y.hover || a11y.focus || isNearby;
 
   // Animate floating + pulsing
   useFrame((_, delta) => {
