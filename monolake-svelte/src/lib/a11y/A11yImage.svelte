@@ -78,9 +78,9 @@
 
 <T.Group
 	{...$$restProps}
-	on:pointerover={onMeshOver}
-	on:pointerout={onMeshOut}
-	on:click={(e) => {
+	onpointerover={onMeshOver}
+	onpointerout={onMeshOut}
+	onclick={(e) => {
 		e.stopPropagation();
 		if (dragThreshold && e.delta > dragThreshold) return;
 		// No activation for image usually
