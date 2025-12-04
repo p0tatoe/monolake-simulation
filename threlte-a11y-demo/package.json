@@ -1,5 +1,5 @@
 {
-	"name": "monolake-svelte",
+	"name": "threlte-a11y-demo",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -33,9 +33,7 @@
 		"vite": "^7.2.2"
 	},
 	"dependencies": {
-		"@threlte/core": "^8.3.0",
-		"@threlte/extras": "^9.7.1",
-		"@types/three": "^0.181.0",
-		"three": "^0.181.2"
+		"@p0tatoe/threlte-a11y": "^0.0.1",
+		"@threlte/core": "^8.3.1"
 	}
 }

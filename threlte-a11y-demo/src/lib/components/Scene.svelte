@@ -2,10 +2,10 @@
 	import { T, useThrelte, useTask } from '@threlte/core';
 	import { interactivity, useTexture } from '@threlte/extras';
 	import { spring } from 'svelte/motion';
-	import A11yToggle from '../a11y/A11yToggle.svelte';
-	import A11yLink from '../a11y/A11yLink.svelte';
-	import A11yContent from '../a11y/A11yContent.svelte';
-	import A11yImage from '../a11y/A11yImage.svelte';
+	import { A11yToggle } from '@p0tatoe/threlte-a11y';
+	import { A11yLink } from '@p0tatoe/threlte-a11y';
+	import { A11yContent } from '@p0tatoe/threlte-a11y';
+	import { A11yImage } from '@p0tatoe/threlte-a11y';
 	import grebe from '../assets/grebe.jpg';
 
 	const { camera } = useThrelte();
