@@ -8,6 +8,7 @@ import { useA11y } from '@react-three/a11y';
 export default function HoverableModel({
   modelPath,
   position = [0, 0, 0],
+  rotation = [0, 0, 0],
   scale = 1,
   isNearby = false,
 }) {
@@ -38,6 +39,7 @@ export default function HoverableModel({
     <group
       ref={groupRef}
       position={position}
+      rotation={rotation}
     >
       <primitive ref={modelRef} object={scene} scale={isActive ? scale * 1.5 : scale} />
 

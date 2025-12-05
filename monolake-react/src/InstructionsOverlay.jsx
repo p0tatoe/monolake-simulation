@@ -46,9 +46,10 @@ export default function InstructionsOverlay({ onDismiss }) {
           borderRadius: '8px',
         }}
       >
-        <p>Click and drag to move the camera</p>
-        <p>Scroll to zoom</p>
-        <p>Click the animals to learn more</p>
+        <p>Use the arrow keys or the tab key to move around</p>
+        <p>Press Enter or Click to learn more about an animal</p>
+        <p>Press Esc to exit</p>
+        <p>Click anywhere to dismiss</p>
       </div>
     </Html>
   );

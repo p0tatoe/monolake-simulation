@@ -1,14 +1,14 @@
 import React from 'react';
 
-const Sidebar = ({ 
-  isOpen, 
-  onClose, 
+const Sidebar = ({
+  isOpen,
+  onClose,
   onOpen,
-  waterLevel, 
+  waterLevel,
   onWaterLevelChange,
-  onShowCitations 
+  onShowCitations
 }) => {
-  
+
   return (
     <>
       {/* Sidebar Overlay */}
@@ -25,32 +25,65 @@ const Sidebar = ({
           >
             ⮜
           </button>
-          
+
           {/* Sidebar Content */}
           <h3 className="text-lg font-semibold mb-4">Controls</h3>
           <label className="flex flex-col space-y-2">
-            <span>Water Level: {Math.round(6239 + (waterLevel / 0.3) * (6500 - 6239))} ft (Above Sea Level)</span>
+            <span>Water Level: {Math.round(6350 + (waterLevel / 0.6) * (100))} ft (Above Sea Level)</span>
             <input
               type="range"
-              min={0}
-              max={0.3}
+              min={0.14}
+              max={0.24}
               step={0.01}
               value={waterLevel}
               onChange={(e) => onWaterLevelChange(parseFloat(e.target.value))}
+              aria-valuetext={`${Math.round(6350 + (waterLevel / 0.5) * (100))} feet`}
+              aria-valuemin={6350}
+              aria-valuemax={6450}
+              aria-valuenow={waterLevel}
               className="w-full accent-blue-500"
             />
           </label>
+
+          <div className="mt-4 mb-4 p-3 bg-gray-800 rounded-lg text-sm">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-300">Salinity:</span>
+              <span className="font-mono font-bold">{Math.round(81 * (0.19 + 0.1) / (waterLevel + 0.1))} g/L</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-300">Bird Pop:</span>
+              <span className="font-mono font-bold">{((waterLevel / 0.1) * 3.2).toFixed(2)} Million</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-300">Brine Shrimp Pop:</span>
+              <span className="font-mono font-bold">{((waterLevel / 0.19) * 5).toFixed(2)} Trillion</span>
+            </div>
+            {waterLevel < 0.18 && (
+              <p className="text-yellow-400 text-xs mt-2 leading-relaxed border-t border-gray-700 pt-2">
+                ⚠️ When the water level drops below 6378 ft, severe impacts to the ecosystem will occur.
+              </p>
+            )}
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <p>
+              <small>
+                <i>
+                  All data and visuals are stylistic representations and should be treated as approximate estimates only
+                </i>
+              </small>
+            </p>
+          </div>
           <br></br>
           {/* Open Citations Modal */}
           <button
             onClick={onShowCitations}
             className="bg-blue-600 hover:bg-blue-500 text-white rounded p-2 transition-colors duration-200"
           >
-            View Attributions
+            View Model Attributions
           </button>
         </div>
       </div>
-      
+
       {/* Floating Toggle Button (Visible when sidebar is closed) */}
       {!isOpen && (
         <button

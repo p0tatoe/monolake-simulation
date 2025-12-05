@@ -46,6 +46,7 @@ const MODELS = {
   fly: {
     modelPath: import.meta.env.BASE_URL + 'Fly.glb',
     position: [2.6, 0.5, -2.6],
+    rotation: [0, Math.PI, 0],
     scale: 0.1,
     data: {
       title: "Alkali Fly",
@@ -78,6 +79,7 @@ const MODELS = {
   shrimp: {
     modelPath: import.meta.env.BASE_URL + 'shrimp.glb',
     position: [-2, 0.5, 0.4],
+    rotation: [0, Math.PI / 2, 0],
     scale: 0.01,
     data: {
       title: "Brine Shrimp",
@@ -166,7 +168,7 @@ function ModelPreloader() {
 
 export default function App() {
   const [selectedModel, setSelectedModel] = useState(null);
-  const [waterLevel, setWaterLevel] = React.useState(0.17);
+  const [waterLevel, setWaterLevel] = React.useState(0.19);
   const [uiOpen, setUiOpen] = React.useState(true);
   const [showCitations, setShowCitations] = useState(false);
   const [instructionsDismissed, setInstructionsDismissed] = useState(false);
@@ -174,7 +176,7 @@ export default function App() {
   const [nearbyModelKey, setNearbyModelKey] = useState(null);
 
   // Water level threshold for coyote appearance
-  const LOW_WATER_THRESHOLD = 0.14;
+  const LOW_WATER_THRESHOLD = 0.18;
 
   const isLandBridgeExposed = waterLevel < LOW_WATER_THRESHOLD;
   const activeModel = isLandBridgeExposed ? COYOTE_MODEL : NEST_MODEL;
@@ -191,6 +193,21 @@ export default function App() {
   const handleProximityChange = (key) => {
     setNearbyModelKey(key);
   };
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter' && nearbyModelKey) {
+        if (MODELS[nearbyModelKey]) {
+          handleModelClick(MODELS[nearbyModelKey].data);
+        } else if (nearbyModelKey === activeKey) {
+          handleModelClick(activeModel[activeKey].data);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nearbyModelKey, activeKey, activeModel]);
+
 
   // Combine all active models for the player to check against
   const allActiveModels = { ...MODELS, [activeKey]: activeModel[activeKey] };
@@ -232,6 +249,7 @@ export default function App() {
               <HoverableModel
                 modelPath={config.modelPath}
                 position={config.position}
+                rotation={config.rotation}
                 scale={config.scale}
                 isNearby={key === nearbyModelKey}
               />
