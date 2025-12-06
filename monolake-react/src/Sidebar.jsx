@@ -9,6 +9,10 @@ const Sidebar = ({
   onShowCitations
 }) => {
 
+  const salinityValue = Math.round(81 * (0.19 + 0.1) / (waterLevel + 0.1));
+  const birdPopValue = ((waterLevel / 0.1) * 3.2).toFixed(2);
+  const brineShrimpPopValue = ((waterLevel / 0.19) * 5).toFixed(2);
+
   return (
     <>
       {/* Sidebar Overlay */}
@@ -22,12 +26,15 @@ const Sidebar = ({
           <button
             onClick={onClose}
             className="self-end bg-gray-700 hover:bg-gray-600 rounded p-2 mb-4 transition-colors duration-200"
+            aria-label="Click to hide sidebar"
           >
             ⮜
           </button>
 
           {/* Sidebar Content */}
           <h3 className="text-lg font-semibold mb-4">Controls</h3>
+
+          {/* Water Level */}
           <label className="flex flex-col space-y-2">
             <span>Water Level: {Math.round(6350 + (waterLevel / 0.6) * (100))} ft (Above Sea Level)</span>
             <input
@@ -37,33 +44,58 @@ const Sidebar = ({
               step={0.01}
               value={waterLevel}
               onChange={(e) => onWaterLevelChange(parseFloat(e.target.value))}
-              aria-valuetext={`${Math.round(6350 + (waterLevel / 0.5) * (100))} feet`}
+              aria-valuetext={`${Math.round(6350 + (waterLevel / 0.6) * (100))} feet`}
               aria-valuemin={6350}
               aria-valuemax={6450}
               aria-valuenow={waterLevel}
               className="w-full accent-blue-500"
             />
           </label>
-
+          
           <div className="mt-4 mb-4 p-3 bg-gray-800 rounded-lg text-sm">
+
+            {/* Salinity */}
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-300">Salinity:</span>
-              <span className="font-mono font-bold">{Math.round(81 * (0.19 + 0.1) / (waterLevel + 0.1))} g/L</span>
+              <span 
+                className="font-mono font-bold"
+                aria-label={`Calculated salinity: ${salinityValue} grams per liter`}
+                role="definition"
+              >
+                {salinityValue} g/L
+              </span>
             </div>
+
+            {/* Bird Pop */}
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-300">Bird Pop:</span>
-              <span className="font-mono font-bold">{((waterLevel / 0.1) * 3.2).toFixed(2)} Million</span>
+              <span
+                aria-label={`Calculated bird population: ${birdPopValue} million`}
+                role="definition"
+                className="font-mono font-bold">{((waterLevel / 0.1) * 3.2).toFixed(2)} Million</span>
             </div>
+
+            {/* Shrimp Pop */}
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-300">Brine Shrimp Pop:</span>
-              <span className="font-mono font-bold">{((waterLevel / 0.19) * 5).toFixed(2)} Trillion</span>
+              <span
+                aria-label={`Calculated brine shrimp population: ${brineShrimpPopValue} trillion`}
+                role="definition"
+                className="font-mono font-bold">{((waterLevel / 0.19) * 5).toFixed(2)} Trillion</span>
             </div>
+
+            {/* Warning */}
             {waterLevel < 0.18 && (
-              <p className="text-yellow-400 text-xs mt-2 leading-relaxed border-t border-gray-700 pt-2">
+              <p 
+                className="text-yellow-400 text-xs mt-2 leading-relaxed border-t border-gray-700 pt-2"
+                tabIndex="0"
+              >
                 ⚠️ When the water level drops below 6378 ft, severe impacts to the ecosystem will occur.
               </p>
             )}
           </div>
+
+          
           <div className="flex justify-between items-center mb-2">
             <p>
               <small>
@@ -89,6 +121,7 @@ const Sidebar = ({
         <button
           onClick={onOpen}
           className="absolute top-4 left-4 bg-gray-800 text-white rounded p-2 shadow hover:bg-gray-700 transition-colors duration-200"
+          aria-label="Click to show sidebar"
         >
           ⮞
         </button>

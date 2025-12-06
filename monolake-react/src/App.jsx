@@ -7,7 +7,8 @@ import HeightMapPath from './assets/monomerge.png';
 import Sidebar from './Sidebar'
 import HoverableModel from "./HoverableModel";
 import TooltipCard from "./TooltipCard";
-import InstructionsOverlay from './InstructionsOverlay';
+
+import InstructionsOverlay from './Instructions';
 import CitationsModal from './CitationsModal';
 import Player from './Player';
 import { A11y, A11ySection, A11yAnnouncer } from '@react-three/a11y'
@@ -214,8 +215,14 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen relative">
+
+      {!instructionsDismissed && (
+        <InstructionsOverlay onDismiss={() => setInstructionsDismissed(true)} />
+      )}
+      
       {/* 3D Scene */}
       <Canvas camera={{ position: [0, 6, 10], fov: 45 }}>
+        
         <ModelPreloader />
         <A11ySection
           description="Interactive 3D Model of Mono Lake Ecosystem. 
@@ -271,9 +278,6 @@ export default function App() {
             />
           </A11y>
 
-          {!instructionsDismissed && (
-            <InstructionsOverlay onDismiss={() => setInstructionsDismissed(true)} />
-          )}
         </A11ySection>
 
         <Player
